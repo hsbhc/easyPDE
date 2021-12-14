@@ -278,7 +278,7 @@ def example1():
         solver = Solver(question=question, h_Mesh=h, h_Finite=h)
         solver.setBasisFunction(trialBasisFunctionType=BasisFunctionType.One_Dimensional_Linear_Element,
                                 testBasisFunctionType=BasisFunctionType.One_Dimensional_Linear_Element)
-        solver.setIntegrator(integratorType=IntegratorType.Gauss)
+        solver.setIntegrator(IntegratorType.Gauss)
         solver.integrator.set_gauss_point_number(4)
         solver.setPT_PbTb(PMatrixType.One_Dimensional_Linear_Node, TMatrixType.One_Dimensional_Linear_Cell,
                           PMatrixType.One_Dimensional_Linear_Node, TMatrixType.One_Dimensional_Linear_Cell)
