@@ -41,7 +41,8 @@ class PTMatrix():
         self._range=range
         self._h_Mesh = h_Mesh
         self._h_Finite =h_Finite
-
+        self.h_t=0
+        self.scheme=0
         self._pMatrixType=PMatrixType.One_Dimensional_Linear_Node
         self._tMatrixType=TMatrixType.One_Dimensional_Linear_Cell
         self._pbMatrixType = PMatrixType.One_Dimensional_Linear_Node
@@ -117,9 +118,10 @@ class PTMatrix():
         P = np.zeros((2, Node_num))
         for rn in range(N1_m):
             for cn in range(N2_m):
-                x = ranges[0][0] + cn * h[0]
-                y = ranges[1][0] + rn * h[1]
-                j = cn * N2_m + rn
+                x = ranges[0][0] + rn * h[0]
+                y = ranges[1][0] + cn * h[1]
+
+                j = rn * N2_m + cn
                 P[0, j] = x
                 P[1, j] = y
         return P
@@ -135,14 +137,17 @@ class PTMatrix():
         '''
         N = 2 * N1 * N2
         Tb = np.zeros((3, N), dtype=int)
+
         for ce in range(N1):
             for re in range(N2):
-                n1 = re * 2 * N2 + 2 * ce
-                n2 = re * 2 * N2 + 2 * ce + 1
-                j1 = re * (N1 + 1) + ce
-                j2 = re * (N2 + 1) + ce + 1
-                j3 = (re + 1) * (N1 + 1) + ce
-                j4 = (re + 1) * (N2 + 1) + ce + 1
+                n1 = ce * 2 * N2 + 2 * re
+                n2 = ce * 2 * N2 + 2 * re + 1
+
+                j1 = re + ce * (N2 + 1)
+                j2 = re + ce * (N2 + 1) + 1
+                j3 = re + (ce + 1) * (N2 + 1)
+                j4 = re + (ce + 1) * (N2 + 1) + 1
+
                 Tb[0, n1] = j1
                 Tb[1, n1] = j3
                 Tb[2, n1] = j2
@@ -166,21 +171,23 @@ class PTMatrix():
                         [ 1  7  3  9 11 17 13 19]]
         '''
         N = 2 * N1 * N2
+
         Tb = np.zeros((6, N), dtype=int)
-        for re in range(N1):
-            for ce in range(N2):
+        for ce in range(N1):
+            for re in range(N2):
                 n1 = ce * 2 * N2 + 2 * re
                 n2 = ce * 2 * N2 + 2 * re + 1
-                center = (2 * N1 + 2) + 2 * (2 * N1 + 1) * ce + 2 * re
-                j1 = center - (2 * N1 + 1) - 1
-                j2 = center - (2 * N1 + 1)
-                j3 = center - (2 * N1 + 1) + 1
+
+                center = (2 * N2 + 2) + 2 * (2 * N2 + 1) * ce + 2 * re
+                j1 = center - (2 * N2 + 1) - 1
+                j2 = center - (2 * N2 + 1)
+                j3 = center - (2 * N2 + 1) + 1
                 j4 = center - 1
                 j5 = center
                 j6 = center + 1
-                j7 = center + (2 * N1 + 1) - 1
-                j8 = center + (2 * N1 + 1)
-                j9 = center + (2 * N1 + 1) + 1
+                j7 = center + (2 * N2 + 1) - 1
+                j8 = center + (2 * N2 + 1)
+                j9 = center + (2 * N2 + 1) + 1
                 Tb[0, n1] = j1
                 Tb[1, n1] = j7
                 Tb[2, n1] = j3

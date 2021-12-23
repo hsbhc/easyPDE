@@ -27,6 +27,7 @@
           <option value="finiteElement2D.question.Question.pq_right" />
           <option value="finiteElement2D.question.Question.dUdy" />
           <option value="finiteElement2D.question.Question.dUdx" />
+          <option value="finiteElement2D_t.question.Question.T0" />
         </list>
       </option>
     </inspection_tool>

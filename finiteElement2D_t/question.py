@@ -80,3 +80,34 @@ class Two_Dimensional_PoissonQuestion(Question):
 
     def dU(self,x,y):
         pass
+
+
+class Two_Dimensional_PoissonQuestion_t(Question):
+    def __init__(self, range=((-1, 1),(-1,1)),t_range=(0,1)):
+        '''
+        rs_left: derivative order of left basis function of equation in weak form
+        rs_left: derivative order of right basis function of equation in weak form
+        :param range: Variable range
+        '''
+        self.range=range
+        self.t_range=t_range
+        self.rs_left = [(1,0,1,0),(0,1,0,1)]
+        self.pq_right = [(0,0)]
+
+    @abstractmethod
+    def C(self,x,y ,t):
+        pass
+
+    @abstractmethod
+    def F(self,x,y ,t):
+        pass
+
+    '''
+    Analytical solution
+    '''
+
+    def U(self,x,y,t):
+        pass
+
+    def dU(self,x,y,t):
+        pass
