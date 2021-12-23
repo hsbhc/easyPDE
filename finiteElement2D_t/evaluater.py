@@ -10,16 +10,14 @@
 
 import numpy as np
 import math
-from finiteElement2D.solvers import Solver
+from finiteElement2D_t.solvers import Solver_t
 
-class Evaluate():
-    def __init__(self,solver: Solver):
+class Evaluate_t():
+    def __init__(self,solver: Solver_t):
         self.solver=solver
-        self.matrixEquation=solver.matrixEquation
         self.PT_matrix=solver.PT_matrix
-        self.linearSystem=solver.linearSystem
         self.question=solver.question
-
+        self.linearSystem=solver.linearSystem
     @staticmethod
     def get_convergence_order(errors,hs=0.5):
         convergence_orders=[]
@@ -32,19 +30,14 @@ class Evaluate():
         return convergence_orders
 
     def get_maximum_error(self):
-        if self.PT_matrix.En.dim==1:
-            max_error = 0
-            for i in range(self.PT_matrix.Nbm):
-                temp = self.matrixEquation.solution[i] - self.question.U(self.PT_matrix.Pb[i])
-                if abs(max_error) < abs(temp):
-                    max_error = abs(temp)
-            return max_error
 
         if self.PT_matrix.En.dim == 2:
             max_error = 0
+            ti=self.solver.m-1
+            t=self.question.t_range[0]+ti*self.solver.h_t
             for i in range(self.PT_matrix.Nbm):
                 x, y = self.PT_matrix.Pb[:, i]
-                temp = self.matrixEquation.solution[i] - self.question.U(x,y)
+                temp =  self.solver.X[ti][i]- self.question.U(x,y,t)
                 if abs(max_error) < abs(temp):
                     max_error = abs(temp)
             return max_error
@@ -74,17 +67,19 @@ class Evaluate():
             return error
         if self.PT_matrix.En.dim ==2:
             error = 0
+            ti = self.solver.m - 1
+            t = self.question.t_range[0] + ti * self.solver.h_t
             for i in range(self.PT_matrix.N):
                 En = self.PT_matrix.En.getEnByIndex(i)
                 x,y = self.linearSystem.integrator.getX(En)
-                analyticalSolution = self.question.U(x,y)
+                analyticalSolution = self.question.U(x,y,t)
                 numericalSolution = analyticalSolution.copy()
                 for j in range(len(x)):
                     x_ = x[j]
                     y_ = y[j]
                     numericalSolution[j] = 0
                     for k in range(self.solver.Nlb_trial):
-                        numericalSolution[j] += self.matrixEquation.solution[
+                        numericalSolution[j] += self.solver.X[ti][
                                                     self.PT_matrix.Tb[k, i]] * self.solver.trial(x_,y_,
                                                                                                  En.correct_En,
                                                                                                  k,
@@ -124,16 +119,18 @@ class Evaluate():
         if self.PT_matrix.En.dim == 2:
             error = 0
             for i in range(self.PT_matrix.N):
+                ti = self.solver.m - 1
+                t = self.question.t_range[0] + ti * self.solver.h_t
                 En = self.PT_matrix.En.getEnByIndex(i)
                 x,y = self.linearSystem.integrator.getX(En)
-                analyticalSolution = self.question.U(x,y)
+                analyticalSolution = self.question.U(x,y,t)
                 numericalSolution = analyticalSolution.copy()
                 for j in range(len(x)):
                     x_ = x[j]
                     y_=y[j]
                     numericalSolution[j] = 0
                     for k in range(self.solver.Nlb_trial):
-                        numericalSolution[j] += self.matrixEquation.solution[
+                        numericalSolution[j] += self.solver.X[ti][
                                                     self.PT_matrix.Tb[k, i]] * self.solver.trial(x_,y_,
                                                                                                  En.correct_En,
                                                                                                  k,
@@ -176,18 +173,20 @@ class Evaluate():
             return np.sqrt(error)
 
         if self.PT_matrix.En.dim == 2:
+            ti = self.solver.m - 1
+            t = self.question.t_range[0] + ti * self.solver.h_t
             error = 0
             for i in range(self.PT_matrix.N):
                 En = self.PT_matrix.En.getEnByIndex(i)
                 x, y = self.linearSystem.integrator.getX(En)
-                analyticalSolution = self.question.dUdx(x, y)
+                analyticalSolution = self.question.dUdx(x, y,t)
                 numericalSolution = analyticalSolution.copy()
                 for j in range(len(x)):
                     x_ = x[j]
                     y_ = y[j]
                     numericalSolution[j] = 0
                     for k in range(self.solver.Nlb_trial):
-                        numericalSolution[j] += self.matrixEquation.solution[
+                        numericalSolution[j] += self.solver.X[ti][
                                                     self.PT_matrix.Tb[k, i]] * self.solver.trial(x_, y_,
                                                                                                  En.correct_En,
                                                                                                  k,
@@ -203,15 +202,15 @@ class Evaluate():
             for i in range(self.PT_matrix.N):
                 En = self.PT_matrix.En.getEnByIndex(i)
                 x, y = self.linearSystem.integrator.getX(En)
-                analyticalSolution = self.question.dUdy(x, y)
+                analyticalSolution = self.question.dUdy(x, y,t)
                 numericalSolution = analyticalSolution.copy()
                 for j in range(len(x)):
                     x_ = x[j]
                     y_ = y[j]
                     numericalSolution[j] = 0
                     for k in range(self.solver.Nlb_trial):
-                        numericalSolution[j] += self.matrixEquation.solution[
-                                                    self.PT_matrix.Tb[k, i]] * self.solver.trial(x_, y_,
+                        numericalSolution[j] += self.solver.X[ti][
+                                                    self.PT_matrix.Tb[k, i]]  * self.solver.trial(x_, y_,
                                                                                                  En.correct_En,
                                                                                                  k,
                                                                                                  0, 1)
