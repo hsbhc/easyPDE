@@ -9,18 +9,20 @@
 '''
 
 import numpy as np
-from finiteElement2D.PTmatrix import PTMatrix
-from finiteElement2D.integrators import Integrator
+from finiteElement2D_t.PTmatrix import PTMatrix
+from finiteElement2D_t.integrators import Integrator
 class MatrixEquation():
     '''
     matrix equation
     '''
-    def __init__(self,A,B):
+    def __init__(self,A,B,M):
+        self.M=M
         self.A=A
         self.B=B
 
-    def solve(self):
-        self.solution = np.linalg.solve(self.A, self.B)
+    def copy(self):
+        return MatrixEquation(self.A.copy(),self.B.copy(),self.M.copy())
+
 
 class LinearSystem():
     def __init__(self,PT_matrix:PTMatrix,Nlb_trial,Nlb_test,integrator:Integrator,integrandFunction):
@@ -51,6 +53,20 @@ class LinearSystem():
                     Ab[self._PT_matrix.Tb[beta,i],self._PT_matrix.Tb[alpha,i]]+=value
         return Ab
 
+    def _make_M(self):
+        '''
+        Make coefficient matrix
+        :return: Ab: coefficient matrix
+        '''
+        Mb=np.zeros((self._PT_matrix.Nbm,self._PT_matrix.Nbm))
+        for i in range(self._PT_matrix.N):
+            for alpha  in range(self.Nlb_trial):
+                for beta in range(self.Nlb_test):
+                    self.integrandFunction.set(self._PT_matrix.En.getEnByIndex(i), alpha, beta)
+                    value = self.integrator.integral(self._PT_matrix.En.getEnByIndex(i), self.integrandFunction.M_F)
+                    Mb[self._PT_matrix.Tb[beta,i],self._PT_matrix.Tb[alpha,i]]+=value
+        return Mb
+
     def _make_B(self):
         '''
         Make constant term
@@ -73,4 +89,29 @@ class LinearSystem():
 
         A = self._make_A()
         B = self._make_B()
-        return MatrixEquation(A,B)
+        M=self._make_M()
+        return MatrixEquation(A,B,M)
+
+    def getA(self):
+        '''
+        The matrix equation is obtained by linear system
+        :return: MatrixEquation
+        '''
+
+        return self._make_A()
+
+    def getB(self):
+        '''
+        The matrix equation is obtained by linear system
+        :return: MatrixEquation
+        '''
+
+        return self._make_B()
+
+    def getM(self):
+        '''
+        The matrix equation is obtained by linear system
+        :return: MatrixEquation
+        '''
+
+        return self._make_M()
