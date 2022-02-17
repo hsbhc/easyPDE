@@ -85,7 +85,6 @@ class BasisFunction():
         :return: Nlb_basisFunction,basisFunction
         '''
         if basisFunctionType == BasisFunctionType.One_Dimensional_Linear_Element:
-            print(0)
             return 2 , self._one_dimensional_linear_element
 
         if basisFunctionType == BasisFunctionType.One_Dimensional_Quadratic_Element:
