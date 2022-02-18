@@ -12,8 +12,7 @@ import time
 import numpy as np
 from enum import Enum
 from abc import ABCMeta,abstractmethod
-
-from finiteElement2D.PTmatrix import EN
+from finiteElement3D_t.PTmatrix import EN
 
 
 class IntegratorType(Enum):
@@ -46,6 +45,7 @@ class GaussIntegrator(Integrator):
         self._gauss_point_number = gauss_point_number
         self._w, self._t = self._generate_Gauss_point_w(self._gauss_point_number)
         self._2dw, self._2dt = self._generate_2DGauss_point_w(self._gauss_point_number)
+        self._3dw,self._3dt=self._generate_3DGauss_point_w(self._gauss_point_number)
     def _generate_Gauss_point_w(self,gauss_point_number):
         '''
         Obtain the weight and coordinates of Gaussian integral points
@@ -93,6 +93,25 @@ class GaussIntegrator(Integrator):
             w = np.array([1 / 6, 1 / 6, 1 / 6])
             t = np.array([[1 / 2, 0],[1 / 2, 1 / 2],[0, 1 / 2]])
         return w,t
+
+    def _generate_3DGauss_point_w(self, gauss_point_number):
+        w, t = [], []
+        root3=1./np.sqrt(3)
+        if gauss_point_number == 8:
+            w = np.array([1.,1.,1.,1.,1.,1.,1.,1.])
+            t =np.array([
+                [root3, root3,root3],
+                [root3, root3, -root3],
+                [root3, -root3, root3],
+                [root3,- root3, -root3],
+                [-root3, root3, root3],
+                [-root3, -root3, root3],
+                [-root3, root3, -root3],
+                [-root3, -root3, -root3]
+            ])
+
+        return w,t
+
     def integral(self,En, f):
         '''
         Integral calculation
@@ -112,7 +131,7 @@ class GaussIntegrator(Integrator):
 
         if En.dim==2:
             point1,point2,point3=En.correct_En[0],En.correct_En[1],En.correct_En[2]
-            x1,y1,=point1
+            x1,y1=point1
             x2,y2=point2
             x3,y3=point3
 
@@ -124,6 +143,22 @@ class GaussIntegrator(Integrator):
             for i in range(self._gauss_point_number):
                 result += w[i] * f(x[i],y[i])
             return result
+
+        if En.dim==3:
+            point1,point2,m1,point4,point5=En.correct_En[0],En.correct_En[1],En.correct_En[2],En.correct_En[3],En.correct_En[4]
+            h_x = point4[0] - point1[0]
+            h_y = point2[1] - point1[1]
+            h_z = point5[2] - point1[2]
+
+            x= (h_x/2)*self._3dt[:,0]+h_x/2+point1[0]
+            y= (h_y/2)*self._3dt[:,1]+h_y/2+point1[1]
+            z = (h_z / 2) * self._3dt[:, 2] + h_z / 2 + point1[2]
+
+            result = 0.0
+            for i in range(self._gauss_point_number):
+                result += self._3dw[i] * f(x[i],y[i],z[i])
+            return result
+
 
     def getX(self,En):
         '''
@@ -145,6 +180,19 @@ class GaussIntegrator(Integrator):
             x = x1 + (x2 - x1) * self._2dt[:, 0] + (x3 - x1) * self._2dt[:, 1]
             y = y1 + (y2 - y1) * self._2dt[:, 0] + (y3 - y1) * self._2dt[:, 1]
             return x,y
+
+        if En.dim==3:
+            point1, point2, m1, point4, point5 = En.correct_En[0], En.correct_En[1], En.correct_En[2], En.correct_En[3], \
+                                                 En.correct_En[4]
+            h_x = point4[0] - point1[0]
+            h_y = point2[1] - point1[1]
+            h_z = point5[2] - point1[2]
+
+            x = (h_x / 2) * self._3dt[:, 0] + h_x / 2 + point1[0]
+            y = (h_y / 2) * self._3dt[:, 1] + h_y / 2 + point1[1]
+            z = (h_z / 2) * self._3dt[:, 2] + h_z / 2 + point1[2]
+
+            return x,y,z
 
 def getIntegrator(type:IntegratorType):
     '''

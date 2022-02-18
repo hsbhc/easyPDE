@@ -207,19 +207,19 @@ class PTMatrix():
     def _getEn(self):
         En=[]
         cell=[]
-        if self.P.ndim == 1:
+        if len(self.P[:,0])== 1:
             for index in range(self.N):
                 for p_index in self.T[:,index]:
                     cell.append([self.P[p_index],])
                 En.append(cell)
                 cell=[]
-        if self.P.ndim == 2:
+        if len(self.P[:,0]) == 2:
             for index in range(self.N):
                 for p_index in self.T[:,index]:
                     cell.append(self.P[:,p_index])
                 En.append(cell)
                 cell=[]
-        self.En=EN(np.array(En),dim=self.P.ndim)
+        self.En=EN(np.array(En),dim=len(self.P[:,0]))
 
     def getPTMatrix(self):
         '''

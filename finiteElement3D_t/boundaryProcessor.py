@@ -8,10 +8,10 @@
 @Function: BoundaryProcessor
 '''
 
-from finiteElement2D_t.PTmatrix import PTMatrix, EN
-from finiteElement2D_t.integrators import getIntegrator, IntegratorType
-from finiteElement2D_t.linearSystem import MatrixEquation, LinearSystem
-from finiteElement2D_t.question import Question
+from finiteElement3D_t.PTmatrix import PTMatrix, EN
+from finiteElement3D_t.integrators import getIntegrator, IntegratorType
+from finiteElement3D_t.linearSystem import MatrixEquation, LinearSystem
+from finiteElement3D_t.question import Question
 import numpy as np
 
 
@@ -58,6 +58,22 @@ class BoundaryProcessor():
                         matrixEquation.A[i, :] = 0
                         matrixEquation.A[i, i] = 1
                         if self._PT_matrix.scheme==0:
+                            matrixEquation.B[i] = gx
+                        else:
+                            matrixEquation.B[i] = self._PT_matrix.scheme * gx + (1 - self._PT_matrix.scheme) * gx0
+            return matrixEquation
+
+        if self._PT_matrix.En.dim == 3:
+            for i in range(self._PT_matrix.Nbm):
+                x, y, z = self._PT_matrix.Pb[:, i]
+                if x == self._range[0][0] or x == self._range[0][1] or y == self._range[1][0] or y == self._range[1][
+                    1] or z == self._range[2][0] or z == self._range[2][1]:
+                    gx = self._question.G(x, y, z, self._linearSystem.integrandFunction.t)
+                    gx0 = self._question.G(x, y, z, self._linearSystem.integrandFunction.t - self._PT_matrix.h_t)
+                    if gx != 'No limit':
+                        matrixEquation.A[i, :] = 0
+                        matrixEquation.A[i, i] = 1
+                        if self._PT_matrix.scheme == 0:
                             matrixEquation.B[i] = gx
                         else:
                             matrixEquation.B[i] = self._PT_matrix.scheme * gx + (1 - self._PT_matrix.scheme) * gx0

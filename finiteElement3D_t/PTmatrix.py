@@ -278,27 +278,27 @@ class PTMatrix():
     def _getEn(self):
         En=[]
         cell=[]
-        if self.P.ndim == 1:
+        if len(self.P[:,0]) == 1:
             for index in range(self.N):
                 for p_index in self.T[:,index]:
                     cell.append([self.P[p_index],])
                 En.append(cell)
                 cell=[]
-        if self.P.ndim == 2:
+        if len(self.P[:,0]) == 2:
             for index in range(self.N):
                 for p_index in self.T[:,index]:
                     cell.append(self.P[:,p_index])
                 En.append(cell)
                 cell=[]
 
-        if self.P.ndim == 3:
+        if len(self.P[:,0]) == 3:
             for index in range(self.N):
                 for p_index in self.T[:,index]:
                     cell.append(self.P[:,p_index])
                 En.append(cell)
                 cell=[]
 
-        self.En=EN(np.array(En),dim=self.P.ndim)
+        self.En=EN(np.array(En),dim=len(self.P[:,0]))
 
     def getPTMatrix(self):
         '''
@@ -323,7 +323,6 @@ class PTMatrix():
             self.N=N1*N2*N3
             self.Nm = (N1+1)*(N2+1)*(N3+1)
             self.P = self._make_Three_Dimensional_Linear_Node(self._range, self._h_Mesh)
-
         if self._tMatrixType == TMatrixType.One_Dimensional_Linear_Cell:
             self.T=self._make_One_Dimensional_Linear_Cell(self.N)
 
@@ -364,7 +363,7 @@ class PTMatrix():
             self.Nbm = (N1+1)*(N2+1)
             self.Pb = self._make_Two_Dimensional_Linear_Node(self._range, self._h_Finite)
 
-        if self._pbMatrixType == PMatrixType.Two_Dimensional_Linear_Node:
+        if self._pbMatrixType == PMatrixType.Three_Dimensional_Linear_Node:
             N1 = int((self._range[0][1] - self._range[0][0]) / self._h_Finite[0])
             N2 = int((self._range[1][1] - self._range[1][0]) / self._h_Finite[1])
             N3 = int((self._range[2][1] - self._range[2][0]) / self._h_Finite[2])
@@ -390,12 +389,11 @@ class PTMatrix():
             N2 = int((self._range[1][1] - self._range[1][0]) / self._h_Mesh[1])
             self.Tb= self._make_Two_Dimensional_Quadratic_Cell(N1,N2)
 
-        if self._tbMatrixType == TMatrixType.Two_Dimensional_Quadratic_Cell:
+        if self._tbMatrixType == TMatrixType.Three_Dimensional_Linear_Cell:
             N1 = int((self._range[0][1] - self._range[0][0]) / self._h_Mesh[0])
             N2 = int((self._range[1][1] - self._range[1][0]) / self._h_Mesh[1])
             N3 = int((self._range[2][1] - self._range[2][0]) / self._h_Mesh[2])
             self.Tb= self._make_Three_Dimensional_Linear_Cell(N1,N2,N3)
 
-        self._getEn()
 
 

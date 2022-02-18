@@ -8,14 +8,14 @@
 @Function: Solver
 '''
 
-from finiteElement2D_t.PTmatrix import PTMatrix, PMatrixType, TMatrixType
-from finiteElement2D_t.basisFunction import BasisFunction, BasisFunctionType
-from finiteElement2D_t.boundaryProcessor import BoundaryProcessor
-from finiteElement2D_t.integrandFunctions import  getIntegrandFunction
-from finiteElement2D_t.integrators import IntegratorType
-from finiteElement2D_t.linearSystem import LinearSystem
-from finiteElement2D_t.question import Question, One_Dimensional_PoissonQuestion
-from finiteElement2D_t.integrators import getIntegrator
+from finiteElement3D_t.PTmatrix import PTMatrix, PMatrixType, TMatrixType
+from finiteElement3D_t.basisFunction import BasisFunction, BasisFunctionType
+from finiteElement3D_t.boundaryProcessor import BoundaryProcessor
+from finiteElement3D_t.integrandFunctions import  getIntegrandFunction
+from finiteElement3D_t.integrators import IntegratorType
+from finiteElement3D_t.linearSystem import LinearSystem
+from finiteElement3D_t.question import Question, One_Dimensional_PoissonQuestion
+from finiteElement3D_t.integrators import getIntegrator
 import numpy as np
 
 class Solver_t():
@@ -42,13 +42,6 @@ class Solver_t():
             self.basisFunction.get_trial_test(self.trialBasisFunctionType,
                                               self.testBasisFunctionType)
 
-    def setIntegrator(self, integratorType: IntegratorType):
-        '''
-        set integrator
-        '''
-        self.integratorType = integratorType
-        self.integrator = getIntegrator(self.integratorType)
-
     def setPT_PbTb(self, pMatrixType: PMatrixType, tMatrixType: TMatrixType, pbMatrixType: PMatrixType,
                    tbMatrixType: TMatrixType):
         '''
@@ -58,8 +51,17 @@ class Solver_t():
         self.PT_matrix.setPT_PbTb_type(pMatrixType, tMatrixType, pbMatrixType, tbMatrixType)
         self.PT_matrix.getPTMatrix()
         self.PT_matrix.getPbTbMatrix()
-        self.PT_matrix.h_t=self.h_t
-        self.PT_matrix.scheme=self.scheme
+        self.PT_matrix.h_t = self.h_t
+        self.PT_matrix.scheme = self.scheme
+
+    def setIntegrator(self, integratorType: IntegratorType):
+        '''
+        set integrator
+        '''
+        self.integratorType = integratorType
+        self.integrator = getIntegrator(self.integratorType)
+
+
     def makeLinearSystem(self):
         '''
         Generate matrix equation
@@ -106,5 +108,5 @@ class Solver_t():
         X_old= np.zeros(self.PT_matrix.Nbm)
         for i in range(self.PT_matrix.Nbm):
             point =self.PT_matrix.Pb[:,i]
-            X_old[i]=self.question.T0(point[0],point[1])
+            X_old[i]=self.question.T0(point[0],point[1],point[2])
         return X_old

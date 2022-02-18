@@ -111,3 +111,32 @@ class Two_Dimensional_PoissonQuestion_t(Question):
 
     def dU(self,x,y,t):
         pass
+
+class Three_Dimensional_PoissonQuestion_t(Question):
+    def __init__(self, range=((0, 1),(0,1),(0,1)),t_range=(0,1)):
+        '''
+        rs_left: derivative order of left basis function of equation in weak form
+        rs_left: derivative order of right basis function of equation in weak form
+        :param range: Variable range
+        '''
+        self.range=range
+        self.t_range=t_range
+        self.rs_left = [(1,0,0,1,0,0),(0,1,0,0,1,0),(0,0,1,0,0,1)]
+        self.pq_right = [(0,0,0)]
+
+    @abstractmethod
+    def C(self,x,y,z,t):
+        pass
+
+    @abstractmethod
+    def F(self,x,y,z,t):
+        pass
+
+    '''
+    Analytical solution
+    '''
+    def U(self,x,y,z,t):
+        pass
+
+    def dU(self,x,y,z,t):
+        pass

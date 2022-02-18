@@ -9,8 +9,8 @@
 '''
 
 import numpy as np
-from finiteElement2D_t.PTmatrix import PTMatrix
-from finiteElement2D_t.integrators import Integrator
+from finiteElement3D_t.PTmatrix import PTMatrix
+from finiteElement3D_t.integrators import Integrator
 class MatrixEquation():
     '''
     matrix equation
