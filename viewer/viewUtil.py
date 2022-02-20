@@ -80,7 +80,7 @@ class Viewer():
 
         plt.title("geometry -- t = "+str(t))
         plt.draw()
-        plt.pause(1)
+        plt.pause(0.3)
 
     def plot_cube_result(self,T, show_grid=False):
         fig = plt.figure()

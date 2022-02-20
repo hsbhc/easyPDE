@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
 
     # 设置时间步
-    t_range = (0, 3)
+    t_range = (0, 1.5)
     question.t_range = t_range
     h_t = h_mesh
 
