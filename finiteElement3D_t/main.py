@@ -13,8 +13,6 @@ from finiteElement3D_t.basisFunction import BasisFunctionType
 from finiteElement3D_t.evaluater import Evaluate_t
 from finiteElement3D_t.integrators import IntegratorType
 from finiteElement3D_t.solvers import Solver_t
-from finiteElement2D_t.question import One_Dimensional_PoissonQuestion, Two_Dimensional_PoissonQuestion, \
-    Two_Dimensional_PoissonQuestion_t
 import time
 
 from finiteElement3D_t.question import Three_Dimensional_PoissonQuestion_t
@@ -94,8 +92,11 @@ def example1():
         solver.integrator.set_gauss_point_number(8)
         solver.setPT_PbTb(PMatrixType.Three_Dimensional_Linear_Node, TMatrixType.Three_Dimensional_Linear_Cell,
                           PMatrixType.Three_Dimensional_Linear_Node, TMatrixType.Three_Dimensional_Linear_Cell)
-
-        solver.makeLinearSystem()
+        solver.init_A_M()
+        for step in range(0,solver.m):
+            X=solver.step_t(step)
+            # print(X)
+        # solver.makeLinearSystem()
 
         end = time.time()
         evaluate = Evaluate_t(solver)

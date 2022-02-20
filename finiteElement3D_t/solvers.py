@@ -57,6 +57,7 @@ class Solver_t():
     def setIntegrator(self, integratorType: IntegratorType):
         '''
         set integrator
+        :rtype: object
         '''
         self.integratorType = integratorType
         self.integrator = getIntegrator(self.integratorType)
@@ -103,6 +104,52 @@ class Solver_t():
                 X = (X - X_old) / self.scheme + X_old
             X_old=X
             self.X.append(X_old)
+
+    def init_A_M(self):
+        self.integrandFunction = getIntegrandFunction(self.question, self.trial, self.test)
+        self.linearSystem = LinearSystem(self.PT_matrix, self.Nlb_trial, self.Nlb_test, self.integrator,
+                                         self.integrandFunction)
+        matrixEquation = self.linearSystem.getMatrixEquation()
+        A = matrixEquation.A
+        M = matrixEquation.M
+        if self.scheme != 0:
+            A_ = M / (self.h_t * self.scheme) + A
+        else:
+            A_ = M / self.h_t
+        self.M=M
+        self.A = A
+        self.A_=A_
+        self.matrixEquation=matrixEquation
+        X_old = self.getX0()
+        self.X = [X_old]
+
+    def step_t(self,t_step):
+        if t_step==0:return self.X[0]
+        t0 = self.question.t_range[0] + self.h_t * (t_step - 1)
+        t1 = self.question.t_range[0] + self.h_t * t_step
+        linearSystem = LinearSystem(self.PT_matrix, self.Nlb_trial, self.Nlb_test, self.integrator, self.integrandFunction)
+        linearSystem.integrandFunction.t = t0
+        B0 = linearSystem.getB()
+        linearSystem.integrandFunction.t = t1
+        B1 = linearSystem.getB()
+
+        X_old=self.X[t_step-1]
+        if self.scheme != 0:
+            B_ = self.scheme * B1 + (1 - self.scheme) * B0 + np.dot(self.M, X_old) / (self.h_t * self.scheme)
+        else:
+            B_ = self.scheme * B1 + (1 - self.scheme) * B0 + np.dot(self.A_ - self.A, X_old)
+
+        self.matrixEquation.A = self.A_
+        self.matrixEquation.B = B_
+        boundaryProcessor = BoundaryProcessor(self.question, self.PT_matrix, linearSystem)
+        matrixEquation = boundaryProcessor.boundary_treatment(self.matrixEquation)
+        X = np.linalg.solve(matrixEquation.A, matrixEquation.B)
+
+        if self.scheme != 0:
+            X = (X - X_old) / self.scheme + X_old
+        X_old = X
+        self.X.append(X_old)
+        return X_old
 
     def getX0(self):
         X_old= np.zeros(self.PT_matrix.Nbm)
