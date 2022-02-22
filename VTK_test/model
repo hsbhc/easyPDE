@@ -1,0 +1,41 @@
+Laplace
+
+startTime 0
+endTime 1000
+deltaT 10
+writeControl timeStep
+writeInterval 5 
+
+transientSchemes steadyState
+gradientSchemes gaussLinear
+convectionSchemes none
+diffusionSchemes gaussLinearCorrected
+interpolationSchemes linear
+snGradSchemes corrected
+
+solver smoothSolver
+smoother DILU
+preconditioner none
+tolerance 1e-6
+relTol 0
+nPreSweeps 0
+nPostSweeps 0
+maxIter 20
+nFinestSweeps 0
+
+nCorrectors 0
+pRefCell 0
+pRefValue 0
+residualControl 1e-12;
+
+relaxationFactor 0.9
+
+DT 4e-5
+rho 1
+Cp 1004
+
+internalField uniform 273
+1 zeroGradient
+2 fixedValue uniform 273
+3 zeroGradient
+4 fixedValue uniform 573
